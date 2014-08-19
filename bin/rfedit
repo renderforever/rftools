@@ -1,0 +1,169 @@
+#!/usr/bin/env python
+# rfedit
+# Do interaction with cli for fseditor.py
+
+from rftools import fseditor
+from rftools import fstrimmer
+from rftools.pipeinfs import get_fs
+from rftools.Filesequence import Filesequence
+from rftools.logger import print_cli
+from rftools.version import rfversion
+from optparse import OptionParser
+import os
+import sys
+from types import *
+
+def cli_arguments():
+	""" argument sanity check via OptionParser. Note that the actual flags are read via manual parsing and usage is mix of these both """
+
+	parser = OptionParser(usage="usage: %prog [options] <sequence>", version=rfversion())
+
+	parser.add_option("--fps", dest="fps", type="int", help="Global frames per second setting (affects timecodes only)", metavar="fps", default=None)
+	parser.add_option("--tcstart", dest="tc_start", help="Global timecode start frame", metavar="frame/tc", default=0)
+	parser.add_option("--quiet", "-q", dest="quiet", help="suppress errormessages", action="store_true")
+	parser.add_option("--single", "-1", dest="single", help="Return only destination sequence name", action="store_true")
+	parser.add_option("--truncate", "-T", dest="truncate", action='store', help="only leave frames which lie between range", metavar="start end", nargs=2)
+	parser.add_option("--trim", "-t", dest="trim", action='store', help="trim head and tail by N frames", metavar="head tail", nargs=2)
+	parser.add_option("--head", "-H", dest="head", action='store', help="return N first frames of each clip", metavar="head")
+	parser.add_option("--tail", "-L", dest="tail", action='store', help="return N last frames of each clip", metavar="tail")
+	parser.add_option("--max", "-M", dest="max", help="Only list sequences shorter this", metavar="frames")
+	parser.add_option("--min", "-m", dest="min", help="Only list sequences longer than this", metavar="frames")
+	parser.add_option("--reorder", "-R", dest="reorder", help="reorder sequences based on a list", metavar="\"1,3,2\"")
+	parser.add_option("--padding", "-p", dest="padding", type="int", help="change padding of sequence", metavar="padding")
+	parser.add_option("--offset", "-o", dest="offset", help="offset by N frames", metavar="frames")
+	parser.add_option("--start", "-s", dest="start_at", help="offset sequence to start at N", metavar="frame")
+	parser.add_option("--end", "-e", dest="end_at", help="offset sequence to end at N", metavar="frame")
+	parser.add_option("--basename", "-b", dest="basename", help="rename sequence, before and after numbering", metavar="filename extension", nargs=2)
+	parser.add_option("--reverse", "-v", dest="reverse", help="reverse the order and direction of clips in sequence", action="store_true")
+	parser.add_option("--reconstruct", "-r", dest="reconstruct", help="merge multiple sequences or rename sequence", metavar="seq string")
+	parser.add_option("--removegaps", "-x", dest="remove_gaps", help="remove missing frames and make sequence continous", action="store_true")
+
+	return parser.parse_args()
+
+def print_double(original_seqlist, modified_seqlist):
+	""" print list in the fromat original -> modified, unless both sides are the same """
+
+	ziplist = zip(original_seqlist, modified_seqlist)
+
+	for pair in ziplist:
+		original = pair[0]
+		modified = pair[1]
+
+		if str(original) != str(modified):
+			print str(original) + " -> " + str(modified)
+		else:
+			print str(modified)
+
+def print_single(seqlist):
+	for seq in seqlist:
+		print str(seq)
+
+def init_original_list(original_seqlist, modified_seqlist):
+	""" Init original list by replacing None items in the list by corresponding entries from modified seqlist """
+	return map(lambda orig, modified: orig if orig != None else modified, original_seqlist, modified_seqlist)
+
+
+def manual_parse_args(arglist):
+	""" option parser is designed not to care about the order of flags or duplicate flags, I want to overide this behaviour for rfedit
+		Order of flags matter and duplicates are ok. """
+
+	def chop_args(shortlist):
+		
+		# option longname, shortname and nr of args
+		valid_options = [
+						 (["--fps"], 				1),
+						 (["--tcstart"], 			1),
+						 (["--single"], 			0),
+						 (["--truncate", "-T"], 	2),
+						 (["--trim", "-t"], 		2),
+						 (["--head", "-H"],			1),
+						 (["--tail", "-L"],			1),
+						 (["--max", "-M"],			1),
+						 (["--min", "-m"],			1),
+						 (["--reorder", "-R"],		1),
+						 (["--padding", "-p"],		1),
+						 (["--offset", "-o"], 		1),
+						 (["--start", "-s"],		1),
+						 (["--end", "-e"],			1),
+						 (["--basename", "-b"],		2),
+						 (["--reverse", "-v"],		0),
+						 (["--reconstruct", "-r"],	1),
+						 (["--removegaps",	"-x"],	0)
+						]
+
+		entry = {}
+		
+		try:
+			entry['name'] = shortlist[0]
+		except IndexError:
+			return []
+
+		arg_n = None
+
+		for opt in valid_options:
+			for n in opt[0]:
+				if entry['name'] == n:
+					entry['name'] = opt[0][0] # translate name dict to point always to long --flag_name
+					arg_n = opt[1]
+
+		if arg_n != None:
+			entry['args'] = shortlist[1:][:arg_n] 
+			return [entry] + chop_args(shortlist[(arg_n + 1):])
+
+		else:
+			# Not valid name, cause argument amount is not updated, skip entry
+			return chop_args(shortlist[1:])
+	
+	return chop_args(arglist[1:])
+
+
+def handle_seqs(original_seqlist, modified_seqlist, options, action):
+	""" do edits specified by action to seqlists, return two lists """
+
+	# Trimming operations, affect both seqlists the same amount
+	if action['name'] == "--truncate": original_seqlist, modified_seqlist = fstrimmer.process_sequences(original_seqlist, modified_seqlist, fstrimmer.truncate, start=action['args'][0], end=action['args'][1], fps=options.fps, tc_start=options.tc_start)
+	if action['name'] == "--trim": original_seqlist, modified_seqlist = fstrimmer.process_sequences(original_seqlist, modified_seqlist, fstrimmer.trim, head=action['args'][0], tail=action['args'][1], fps=options.fps, tc_start=options.tc_start)
+	if action['name'] == "--head": original_seqlist, modified_seqlist = fstrimmer.process_sequences(original_seqlist, modified_seqlist, fstrimmer.head_tail, is_head = True, amount=action['args'][0], fps=options.fps, tc_start=options.tc_start)
+	if action['name'] == "--tail": original_seqlist, modified_seqlist = fstrimmer.process_sequences(original_seqlist, modified_seqlist, fstrimmer.head_tail, is_head = False, amount=action['args'][0], fps=options.fps, tc_start=options.tc_start)
+
+	# Filtering operations. Affects full sequences, same operations applied to both seqs (reorder called twice manually from here)
+	if action['name'] == "--max": original_seqlist, modified_seqlist = fseditor.maxseq(original_seqlist, modified_seqlist, amount=action['args'][0], fps=options.fps, tc_start=options.tc_start)
+	if action['name'] == "--min": original_seqlist, modified_seqlist = fseditor.minseq(original_seqlist, modified_seqlist, amount=action['args'][0], fps=options.fps, tc_start=options.tc_start)
+	if action['name'] == "--reorder": modified_seqlist = fseditor.reorder(modified_seqlist, order_string=action['args'][0])
+	if action['name'] == "--reorder": original_seqlist = fseditor.reorder(original_seqlist, order_string=action['args'][0])
+
+	# Mapping operators. Keeps sequence length, but changes naming / numbering. Originals are not affected, thus keeping references to original filenames
+	if action['name'] == "--padding": modified_seqlist = fseditor.padding(modified_seqlist, amount=int(action['args'][0]))
+	if action['name'] == "--offset": modified_seqlist = fseditor.offset(modified_seqlist, amount=action['args'][0], fps=options.fps, tc_start=options.tc_start)
+	if action['name'] == "--start": modified_seqlist = fseditor.offset(modified_seqlist, start_at=action['args'][0], fps=options.fps, tc_start=options.tc_start)
+	if action['name'] == "--end": modified_seqlist = fseditor.offset(modified_seqlist, end_at=action['args'][0], fps=options.fps, tc_start=options.tc_start)
+	if action['name'] == "--basename": modified_seqlist = fseditor.basename(modified_seqlist, headname=action['args'][0], tailname=action['args'][1])
+	if action['name'] == "--reverse": modified_seqlist = fseditor.reverse(modified_seqlist)
+	if action['name'] == "--reconstruct": modified_seqlist = fseditor.reconstruct(modified_seqlist, to=Filesequence.from_string(action['args'][0]))
+	if action['name'] == "--removegaps": modified_seqlist = fseditor.remove_gaps(modified_seqlist)
+
+	return original_seqlist, modified_seqlist
+
+def main():
+
+	options, args = cli_arguments()
+	original_seqlist, modified_seqlist = get_fs(args)
+
+	action_list = manual_parse_args(sys.argv)
+
+	original_seqlist = init_original_list(original_seqlist, modified_seqlist)
+
+	for act in action_list:
+		try:
+			original_seqlist, modified_seqlist = handle_seqs(original_seqlist, modified_seqlist, options, act)
+		except (ValueError, IndexError) as v:
+			print_cli(str(v) + "\n", options.quiet)
+			exit(1)
+
+	if options.single:
+		print_single(modified_seqlist)
+	else:
+		print_double(original_seqlist, modified_seqlist)
+
+if __name__ == '__main__':
+	main()

@@ -1,0 +1,12 @@
+file_%03d.dpx 0 4
+negative_%03d.dpx 6 -10
+multi_part.%04d.dpx -25 -15
+multi_part.%04d.dpx -5 0
+multi_part.%04d.dpx 1 4
+multi_part.%04d.dpx 10 19
+v%02d_roller_in_wrong.0000.dpx 1 4
+%02d 93 105
+single_file.dpx
+single_with_digits.%04d.dpx 1 1
+cornercase.%04d.digit 20 20
+cornercase.%04d 21 21

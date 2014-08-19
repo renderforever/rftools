@@ -1,0 +1,59 @@
+.TH rfunpack 1 "January 2014" "Unix filesequence tools" "Render Forever"
+
+.SH "NAME"
+\fBrfunpack\fR - Expand sequence description back into list of files.
+
+.SH "SYNOPSIS"
+\fBrfunpack\fR [-h] [\fIfilesequence_string\fR \fI...\fR]
+
+.SH "DESCRIPTION"
+\fBrfunpack\fR reads filesequence descriptions such as \fIexample.[0-10@@].dpx\fR and prints out a list of individual filenames in that sequence. If the input is in the 'original -> modified' filesequence format created by rfedit(1) both the original filename and the modified filenames are expanded.
+
+.SH "OPTIONS"
+.TP 20
+\fB-h, --help\fR
+Display simple help.
+
+.SH "EXAMPLES"
+unpack the individual files in sequence
+.P
+.RS
+> \fBrfunpack\fR file.[1-3@@@@].dpx
+.RE
+.RS
+file.0001.dpx
+.RE
+.RS
+file.0002.dpx
+.RE
+.RS
+file.0003.dpx
+.RE
+.P
+
+Print edited output
+.P
+.RS
+> rfpack file.001.dpx file.002.dpx file.003.dpx | rfedit --start 0 | \fBrfunpack\fR
+.RE
+.RS
+file.0001.dpx -> file.0000.dpx
+.RE
+.RS
+file.0002.dpx -> file.0001.dpx
+.RE
+.RS
+file.0003.dpx -> file.0002.dpx
+.RE
+.P
+
+.SH "SEE ALSO"
+.RS
+.BR rfpack(1),
+.BR rfedit(1), 
+.BR rfformat(1),
+.BR rfbuild(1)
+
+.SH "AUTHOR"
+.PP
+Olli Leppanen, Render Forever

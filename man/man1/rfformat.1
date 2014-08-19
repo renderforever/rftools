@@ -1,0 +1,210 @@
+.TH rfformat 1 "November 2013" "Unix filesequence tools" "Render Forever"
+
+.SH "NAME"
+\fBrfformat\fR - read in and print out filesequences in different styles
+
+.SH "SYNOPSIS"
+\fBrfformat\fR [-h] [--fps \fIframerate\fR] [--tcstart \fIframe\fR] [-i \fIformat\fR] [-o \fIformat\fR] [\fIfilesequence_string\fR \fI...\fR]
+
+.SH "DESCRIPTION"
+\fBrfformat\fR translates filesequence strings between different styles. Many programs have their own way of representing filesequences with strings. \fBrfformat\fR can convert many of these into native \fIfilesequence_tools_format\fR and also export filesequences for other programs to read.
+.PP
+\fBrfformat\fR also supports free format output, which can be used for custom printouts of filesequences. See more in \fIFORMATS\fR.
+
+.SH "OPTIONS"
+.TP 16
+\fB-h, --help\fR
+display simple help
+
+.TP
+\fB--fps\fR
+set global framerate (frames per second). Filesequence tools make no assumptions about framerate of filesequence, so it needs to be explicitly set each time timecodes are used. This is usually when frame numbers are displayed as timecode or length of sequence is displayed as timecode.
+
+.TP
+\fB--tcstart\fR
+set global start of timecode. Timecodes are usually mapped so that frame 0 matches timecode 00:00:00:00. This option can be used to remap timecode 00:00:00:00 to different frame.
+
+.TP
+\fB-i, --input\fR
+set input format. If not set \fIfilesequence_tools_format\fR is expected. See \fBFORMATS\fR for more information.
+
+.TP
+\fB-o, --output\fR
+set output format. If not set \fIfilesequence_tools_format\fR is printed out. See \fBFORMATS\fR for more information.
+
+.SH "FORMATS (in/out)"
+The following formats are supported both by --input and --output.
+
+.TP 16
+\fBprintf\fR
+printf is subset of standard printf format string. It only supports \fI%d\fR wildcard. String is followed by space and numbers implying start and end frame of sequence. Start and end can be separated with space or any non-digit character. Examples:
+.PP
+.RS 16
+\fB'file.%04d.dpx 0 10'\fR
+frames 0 to 10 with four digit padding
+.RE
+.RS 16
+\fB'file.%d.dpx 0-10'\fR
+frames 0 to 10 with one digit padding
+.RE
+
+.TP 16
+\fBfilmlight\fR
+filesequence format used by filmlights software such as baselight. Similar to printf, but uses notation \fI%.<p>F\fR to notate place and padding of the frame number. Sequence start and end frame are separated from filename with ':'
+.PP
+.RS 16
+\fB'file.%.4F.dpx:0-10'\fR
+frames 0 to 10 with four digit padding
+.RE
+
+.SH "FORMATS (out only)"
+The following are supported by --output
+
+.TP 16
+\fBshake\fR
+Apple shake legacy format. Clip length is embedded in string. Supports multipart sequences and stepping. Padding is marked either with '@' or '#'. '#' means 4 digit padding. '@' is variable length padding with each '@' symboling one digit.
+.PP
+.RS 16
+\fB'file.10-20#.dpx'\fR
+frames 10 to 20 with four digit padding
+.RE
+.RS 16
+\fB'file.10-30x2,40-50@@.dpx\fR
+frames 10 to 30 with stepping of 2 and from 40 to 50 normal stepping. Both clips have padding of 2 digits.
+.RE
+
+.TP 16
+\fB<custom>\fR
+Any other string passed to format is interpreted as custom format template. Letters and digits are printed out as such. The following symbols are substituted with corresponding details of each filesequence
+.PP
+.RS 16
+\fB'%F'\fR
+Print out full filesequence string.
+.RE
+.RS 16
+\fB'%f'\fR
+Same as '%F', but print out individually each clip in multipart filesequence
+.RE
+.RS 16
+\fB'%h'\fR
+Head of the filesequence.
+.RE
+.RS 16
+\fB'%t'\fR
+Tail of the filesequence.
+.RE
+.RS 16
+\fB'%s'\fR
+Start frame of each clip in filesequence
+.RE
+.RS 16
+\fB'%e'\fR
+End frame of each clip in filesequence
+.RE
+.RS 16
+\fB'%S'\fR
+Start frame of each clip in filesequence, with padding
+.RE
+.RS 16
+\fB'%E'\fR
+End frame of each clip in filesequence, with padding
+.RE
+.RS 16
+\fB'%<'\fR
+Start timecode of each clip (--fps needs to be set)
+.RE
+.RS 16
+\fB'%>'\fR
+End timecode of each clip (--fps needs to be set)
+.RE
+.RS 16
+\fB'%p'\fR
+Padding shown with integers
+.RE
+.RS 16
+\fB'%#'\fR
+Padding shown with corresponding '#'s
+.RE
+.RS 16
+\fB'%@'\fR
+Padding shown with corresponding '@'s
+.RE
+.RS 16
+\fB'%i'\fR
+Increment (stepping) of each clip in sequence
+.RE
+.RS 16
+\fB'%n'\fR
+Index number (order number) of current sequence in the input
+.RE
+.RS 16
+\fB'%L'\fR
+Length of each sequence (in frames)
+.RE
+.RS 16
+\fB'%-'\fR
+Length of each sequence (in timecode, --fps needs to be set)
+.RE
+.RS 16
+\fB'%l'\fR
+Length of each clip in sequence (in frames)
+.RE
+.RS 16
+\fB'%='\fR
+Length of each clip in sequence (in timecode, --fps needs to be set)
+.RE
+
+.SH "EXAMPLES"
+
+print sequence out with filmlight style
+.P
+.RS
+\fBrfformat\fR file.[0-10@].dpx --output filmlight
+.RE
+.RS 11
+out: file.%.1F.dpx:0-10
+.RE
+.P
+
+take in printf style sequence string and return something shake could read
+.P
+.RS
+\fBrfformat\fR --input printf "file.%04d.dpx 20 30" --output shake 
+.RE
+.RS 11
+out: file.20-30#.dpx
+.RE
+.P
+
+list length of each clip in multipart sequence
+.P
+.RS
+\fBrfformat\fR "multipart.[0-10@,40-55@,60-100@].dpx" --fps 25 --output "%f length: %=" 
+.RE
+.RS 11
+out: multipart.[0-10@].dpx length: 00:00:00:11
+.RE
+.RS 16
+multipart.[40-55@].dpx length: 00:00:00:16
+.RE
+.RS 16
+multipart.[60-100@].dpx length: 00:00:01:16
+.RE
+.P
+
+use in combination with other rftools. The following shows start and end timecode of each dpx sequence in directory
+.P
+.RS
+ls | rfpack | \fBrfformat\fR --output "%< %> %f" --fps 25 
+.RE
+
+.SH "SEE ALSO"
+.RS
+.BR rfunpack(1),
+.BR rfedit(1), 
+.BR rfformat(1),
+.BR rfbuild(1)
+
+.SH "AUTHOR"
+.PP
+Olli Leppanen, Render Forever

@@ -1,0 +1,108 @@
+.TH rfbuild 1 "January 2014" "Unix filesequence tools" "Render Forever"
+
+.SH "NAME"
+\fBrfbuild\fR - Modify the actual files based on the instructions provided by other rftools.
+
+.SH "SYNOPSIS"
+\fBrfbuild\fR [-h] [-ipfsq] [-x] [--ln \fIdir\fR] [--mv \fIdir\fR] [--cp \fIdir\fR] [--rv \fIrv_flags\fR] [--cmd \fIexec\fR \fIargs\fR] [\fIfilesequence_string\fR \fI...\fR]
+
+.SH "DESCRIPTION"
+\fBrfbuild\fR performs actions on the files based on instructions piped in from other rftools, usually rfedit(1). It can be used to link, move (rename), copy filesequence files and it also supports launching selected sequences to Tweak Software RV if rv is installed. It is also possible to run files in filesequence through any custom executable. By default \fBrfbuild\fR runs in 'dry-run' mode when it only displays the commands it is about to run without actually running them. Flag \fI-x\fR or \fI--execute\fR is needed to actually perform the actions.
+
+.SH "OPTIONS"
+.TP 24
+\fB-h, --help\fR
+Display simple help.
+
+.TP
+\fB-i, --inputdir\fR \fIdir\fR
+Use different directory as source root than the current location.
+
+.TP
+\fB-p, --createdirs\fR \fIdir\fR
+Create output directories if they do not exist, similar to mkdir -p.
+
+.TP
+\fB-f, --force\fR
+Force overwrite if there are conflicting files in copy, move or link operation. Not recommended.
+
+.TP
+\fB-s, --skip\fR
+Skip warnings about missing source files and do actions on those that are found.
+
+.TP
+\fB-q, --quiet\fR
+Supress messages to standard output.
+
+.TP
+\fB-x, --execute\fR
+Actually perform the actions, otherwise only shows the commands as a 'dry-run' of what would happen.
+
+.SH "ACTIONS"
+Actions are performed from source files to target files. This means that the filesequence descriptions have been manipulated by rfedit(1) or that input and output directory are different. Otherwise \fBrfbuild\fR will exit with 'nothing to do'
+
+.TP 24
+\fB-l, --ln\fR \fIoutput dir\fR
+Create unix soft links from source files to target files.
+
+.TP
+\fB-m, --mv\fR \fIoutput dir\fR
+Move files based on input instructions or do simple move from input dir to output dir.
+
+.TP
+\fB-c, --cp\fR \fIoutput dir\fR
+Copy files based on input instructios or do simple copy from input dir to output dir.
+
+.TP
+\fB-r, --rv\fR \fIrv_flags\fR
+If Tweak Software RV is installed and can be launched from commandline this flag will launch \fIsource sequences\fR to RV. Alternatively RV_EXECUTABLE_PATH environment variable can point to rv executable. Arguments following --rv are flags passed down to RV executable. Use '--' for no flags. If you have several flags to RV quote them "-fullscreen -sRGB"
+
+.TP
+\fB--cmd\fR \fIexec\fR \fIarguments\fR
+--cmd can be used to execute custom program or shellscript for each file. \fIexec\fR is the path to executable. Arguments can be any flags passed to executable or wildcards \fI%original\fR and \fI%modified\fR which will be replaced by each filename in sequence. 
+
+.SH "EXAMPLES"
+Create combined sequence by softlinking each frame of all sequences in current subdirectories. The combined sequence called "combined.####.dpx" will be created inside directory 'new_seq' which will be created during the build.
+.P
+.RS
+> find . | rfpack | rfedit --reconstruct "combined.[0-1000@@@@].dpx" | \fBrfbuild\fR --ln ./new_seq -x -p
+.RE
+.P
+
+.P
+Move (rename) 0-based sequence to 1-based in the same directory.
+.RS
+> ls | rfpack | rfedit --start 1 | \fBrfbuild\fR --mv . -x
+.RE
+.P
+
+.P
+Copy files missing from local 'my_sequence' directory from remote server
+.RS
+> ls my_sequence | rfpack -i | \fBrfbuild\fR --inputdir /mnt/server/remoteseq --cp my_sequence/ -x
+.RE
+.P
+
+.P
+Find all dpx sequences in all subdirectories of current directory and load them to rv.
+.RS
+> find . -type f -name "*.dpx" | rfpack | \fBrfbuild\fR --rv "-fullscreen"
+.RE
+.P
+
+.P
+Generate seqeunce of 25 empty text files using command 'touch'
+.RS
+> \fBrfbuild\fR "empty.[1-25@@@@].txt" --cmd touch "%original" -x
+.P
+
+.SH "SEE ALSO"
+.RS
+.BR rfpack(1),
+.BR rfunpack(1),
+.BR rfedit(1), 
+.BR rfformat(1)
+
+.SH "AUTHOR"
+.PP
+Olli Leppanen, Render Forever

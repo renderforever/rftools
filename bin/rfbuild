@@ -1,0 +1,113 @@
+#!/usr/bin/env python
+# fsbuild.py
+#
+# Cli wrapper to builder. do actions to files based on editor mapped output format
+
+import os
+import sys
+import subprocess
+from optparse import OptionParser
+
+from rftools.Filesequence import Filesequence
+from rftools.pipeinfs import get_fs
+from rftools.logger import print_cli
+from rftools.version import rfversion
+from rftools import fsbuilder
+from rftools import fsrv
+from rftools import fscmd
+
+def cli_arguments():
+
+	parser = OptionParser(usage="usage: %prog [options]", version=rfversion())
+
+	parser.add_option("--inputdir", "-i", dest="in_dir", help="specify input root directory", metavar="dir", default=None)
+
+	parser.add_option("--ln", "-l", dest="ln", help="build new sequence with softlinks to dir", metavar="dir", default=None)
+	parser.add_option("--mv", "-m", dest="mv", help="build new sequence by moving original files to dir", metavar="dir", default=None)
+	parser.add_option("--cp", "-c", dest="cp", help="build new sequence by copying to dir", metavar="dir", default=None)
+	parser.add_option("--rv", "-r", dest="rv", help="load sequences into RV using following flags. For no flags use '-r --'", metavar="\"[rv flags]\"")
+	parser.add_option("--cmd", dest="cmd", help="run a custom command on all files on sequence. %original %modified flags can be used to point to filenames", metavar="executable args", nargs=2)
+	parser.add_option("--createdirs", "-p", dest="create_dirs", help="create directories when needed, similar to mkdir -p", action="store_true")
+	parser.add_option("--force", "-f", dest="force", help="force overwrite existing files", action="store_true")
+	parser.add_option("--skip", "-s", dest="skip", help="skip missing source files", action="store_true")
+	parser.add_option("--quiet", "-q", dest="quiet", help="suppress output", action="store_true")
+	parser.add_option("--execute", "-x", dest = "execute", help="actually do the operation instead dry-run", action="store_true")
+
+	return parser.parse_args()
+
+def get_handler(options):
+	""" passes out builder function based on user argument 
+		extracts the output directory passed in as flag argument """
+
+	out_dir = None
+	handler = None
+
+	if [options.ln, options.cp, options.mv, options.rv, options.cmd].count(None) < 4:
+		raise ValueError ("You can only build one option at a time (--ln, --mv, --cp, --rv, --cmd)")
+
+	if options.ln: 
+		handler = fsbuilder.ln
+		out_dir = options.ln
+	if options.mv:
+		handler = fsbuilder.mv
+		out_dir = options.mv
+	if options.cp:
+		handler = fsbuilder.cp
+		out_dir = options.cp
+
+	if options.rv: handler = fsrv.fsrv
+	if options.cmd: handler = fscmd.fscmd
+
+	return handler, out_dir
+
+def main():
+	options, args = cli_arguments()
+	original_seqlist, modified_seqlist = get_fs(args)
+
+	handler, out_dir = get_handler(options)
+	if not handler:
+		print_cli("nothing to do (maybe --ln, --mv, --cp , --rv or --cmd)\n", options.quiet)
+		sys.exit(0)
+
+	# RV is a thing of it's own
+	if handler == fsrv.fsrv:
+
+		try:
+			fsrv.fsrv(original_seqlist, modified_seqlist, rv_flags=options.rv)
+		except subprocess.CalledProcessError,v:
+			print_cli(str(v) + "\n", options.quiet)
+			sys.exit(1)
+		except OSError, v:
+			print_cli(str(v) + "\n", options.quiet)
+			print_cli("Check that rv can be launched from commandline or set RV_EXECUTABLE_PATH environment variable to point to your rv executable" + "\n", options.quiet)
+		sys.exit(0)
+
+	# cmd is thing of its own
+	if handler == fscmd.fscmd:
+
+			try:
+				fscmd.fscmd(original_seqlist, modified_seqlist, options.cmd, options.execute, options.quiet)
+
+			except subprocess.CalledProcessError,v:
+				print_cli("cmd fails: ", options.quiet)
+				print_cli(str(v) + "\n", options.quiet)
+				sys.exit(1)
+			except OSError, v:
+				print_cli("cmd fails: ", options.quiet)
+				print_cli(str(v) + '\n', options.quiet)
+				sys.exit(1)
+			sys.exit(0)
+
+	# General file manipulation handlers
+	try:
+		fsbuilder.builder(handler, original_seqlist, modified_seqlist, options.in_dir, out_dir, options.create_dirs, options.force, options.skip, options.quiet, options.execute)
+	
+	except OSError, v:
+		print_cli(str(v) + "\n", options.quiet)
+		sys.exit(1)
+	except IOError, v:
+		print_cli(str(v) + "\n", options.quiet) 
+		sys.exit(1)
+
+if __name__ == '__main__':
+	main()

@@ -1,0 +1,54 @@
+file.001.dpx
+file.002.dpx
+file.003.dpx
+file.004.dpx
+file.005.dpx
+file.1000.dpx
+file.1002.dpx
+file.1003.dpx
+file.-23.dpx
+file.023.dpx
+hep.2.dpx
+tösö.20
+tösö.19
+tösö.18
+tösö.17
+123.dpx
+124.dpx
+-100.dpx
+-200.dpx
+-300.dpx
+400.dpx
+500.dpx
+9
+10
+11
+12
+20
+21
+13582930534845908345093458029458.dpx
+13582930534845908345093458029459.dpx
+13582930534845908345093458029460.dpx
+§12.dpx.234
+§12.dpx.235
+§12.dpx.236
+§12.dpx.237
+example with space 1
+example with space 2
+example with space 3
+example with space 4
+None 1
+--1
+--2
+--3
+start.0
+start.2
+start.4.something
+start.6.something
+start.8
+start.10
+1bomb.10.dpx
+1bomb.5.dpx
+1bomb.0.dpx
+1bomb.-5.dpx
+1bomb.na.dpx

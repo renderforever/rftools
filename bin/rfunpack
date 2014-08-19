@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+# fsunpack.py
+#
+# reads various string representations of filesequences and creates Filesequence object from that
+
+import sys
+from optparse import OptionParser
+from rftools.Filesequence import Filesequence
+from rftools.list_files import list_files
+from rftools.pipeinfs import get_fs
+from rftools.version import rfversion
+
+
+def cli_arguments():
+	parser = OptionParser(usage="usage: %prog <sequence>", version=rfversion())
+	return parser.parse_args()
+
+def main():
+
+	options, args = cli_arguments()
+
+	original_seqlist, modified_seqlist = get_fs(args)
+
+	for pair in zip(original_seqlist, modified_seqlist):
+
+		if pair[0]:
+
+			for line in zip(list_files(pair[0]), list_files(pair[1])):
+				print line[0] + " -> " + line[1]
+
+		else:
+
+			for filename in list_files(pair[1]):
+				print filename
+
+
+if __name__ == '__main__':
+	main()

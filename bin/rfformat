@@ -1,0 +1,112 @@
+#!/usr/bin/env python
+# fsformat.py
+#
+# pipe in strings and reformat them to desired format
+
+import sys
+from rftools.pipeinfs import get_fs
+from rftools.Filesequence import Filesequence
+from rftools.logger import print_cli
+from rftools.version import rfversion
+from optparse import OptionParser
+from rftools import fsoutformat
+from rftools import fsinformat
+
+def cli_arguments():
+	parser = OptionParser(usage="usage: %prog [options] <sequence>", version=rfversion())
+	parser.add_option("--fps", dest="fps", type="int", help="Global frames per second setting (affects timecodes only)", metavar="fps", default=None)
+	parser.add_option("--tcstart", dest="tc_start", help="Global timecode start frame", metavar="frame/tc", default=0)
+	parser.add_option("-i", "--input", dest="informat", help="select input format", metavar="printf", default="straight")
+	parser.add_option("-o", "--output", dest="outformat", help="select output format or type freeform format \
+																%F filesequence name \
+																%f filesequence name per each clip \
+																%h head \
+																%t tail \
+																%s start frame of each clip \
+																%e end frame of each clip \
+																%S start frame of each clip with padding \
+																%E end frame of each clip with padding \
+																%< start timecode (--fps needs to be set) \
+																%> end timecode (--fps needs to be set) \
+																%p padding \
+																%# padding with hashes \
+																%@ padding with ats \
+																%i increment \
+																%n index number \
+																%L length of sequence \
+																%- length of sequence in timecode (set also --fps) \
+																%l length of each clip \
+																%= length of each clip in timecode (set also --fps)", metavar="shake|printf|filmlight", default="straight")
+	return parser.parse_args()
+
+def get_in_handler(user_selection):
+	handler = None
+	optional = None
+	if user_selection == "printf": handler = fsinformat.printf_style
+	if user_selection == "filmlight": handler = fsinformat.filmlight_style
+
+	if not handler:
+		handler = fsinformat.format_style
+		optional = user_selection
+
+	return handler, optional
+
+def get_out_handler(user_selection):
+	handler = None
+	optional = None
+	if user_selection == "straight": handler = fsoutformat.straight_style
+	if user_selection == "shake": handler = fsoutformat.shake_style
+	if user_selection == "printf": handler = fsoutformat.printf_style
+	if user_selection == "filmlight": handler = fsoutformat.fl_style
+	if user_selection == "rv": handler = fsoutformat.rv_style
+	if not handler:
+		# Fall through option
+		handler = fsoutformat.format_style
+		optional = user_selection
+
+	return handler, optional
+
+def read_raw_input(args):
+	""" read all strings user has provided either via pipe or as arguments
+		get_fs() has too much processing involved so this is more low level reader
+		similar to fspack """
+
+	if not sys.stdin.isatty():
+		return map(lambda s: s.rstrip(), sys.stdin.readlines()) + args
+	else:
+		return [] + args
+
+def interpret_input(options, args):
+	""" read all input and try to turn it sequences with user provided fsinformat style """
+	if options.informat == "straight":
+		return get_fs(args)[1] # read pipe and arguments, with assumption they are in fs standard sequence string format
+	else:
+		seqs = []
+		in_handler, optional = get_in_handler(options.informat)
+		pipe = read_raw_input(args)
+		for line in pipe:
+			seqs.append(in_handler(line, optional))
+
+		return seqs
+
+def main():
+
+	options, args = cli_arguments()
+	seqlist = interpret_input(options, args)
+
+	# Roll through provided seqlist and print in user provided outputformat
+	out_handler, optional = get_out_handler(options.outformat)
+	for i, seq in enumerate(seqlist):
+		index = i+1 # nth sequence in series, used by "%n" output wildcard. 1 based like rfedit --reorder
+
+		if type(seq) != str or out_handler == fsoutformat.format_style: # Skip strings, except if we have custom outformat!
+			for item in out_handler(seq, optional=optional, fps=options.fps, tc_start=options.tc_start, index=index):
+					print item
+		else:
+			print seq
+
+if __name__ == '__main__':
+	try:
+		main()
+	except ValueError, v:
+		print_cli(str(v) + "\n")

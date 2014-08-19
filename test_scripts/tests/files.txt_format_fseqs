@@ -1,0 +1,9 @@
+file_[0-4@@@].dpx
+negative_[6--10x-2@@@].dpx
+multi_part.[-25--15x5@@@@,-5-0x5@@@@,1-4@@@@,10-19x3@@@@].dpx
+v[1-4@@]_roller_in_wrong.0000.dpx
+[93-105x4@@]
+single_file.dpx
+single_with_digits.[1-1@@@@].dpx
+cornercase.[20-20@@@@].digit
+cornercase.[21-21@@@@]

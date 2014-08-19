@@ -1,0 +1,60 @@
+#!/usr/bin/env python
+# rfpack
+#
+# Commandline wrapper to fspacker.py, reads flags, stdin and formats output
+
+import sys
+import string
+import re
+from optparse import OptionParser
+from rftools.Filesequence import Filesequence
+from rftools.version import rfversion
+from rftools.fspacker import fspacker
+
+def cli_arguments():
+	parser = OptionParser(usage="usage: %prog [options] <sequence>", version=rfversion())
+	parser.add_option("--passthrough", "-p", dest="passthrough", help="pass through files that are not part of sequence", action="store_true")
+	parser.add_option("--sort", "-s", dest="sort", help="sort files before packing", action="store_true")
+	parser.add_option("--short", "-1", dest="short", help="Try to force single files into 1 frame sequences", action="store_true")
+	parser.add_option("--negative", "-n", dest="negative", help="allow negative frame numbers", action="store_true")
+	parser.add_option("--invert", "-i", dest="invert", help="list sequences describing files missing from a sequence rather than hits", action="store_true")
+	return parser.parse_args()
+
+def read_stdin():
+	""" reads from pipe and creates a list """
+	if not sys.stdin.isatty():
+		return map(lambda s: s.rstrip(), sys.stdin.readlines())
+	else:
+		return []
+
+def natural_sort(l, negative):
+	""" takes in list of alphanum strings and tries to sort them in filesequency way """
+
+	if negative:
+		regex = '([0-9]+|-[0-9]+)'
+	else:
+		regex = '([0-9]+)'
+
+	convert = lambda text: int(text) if text.replace("-", "").isdigit() else text 
+	alphanum_key = lambda key: [ convert(c) for c in re.split(regex, key) ]
+	l.sort( key=alphanum_key ) 
+
+	return l
+
+def main():
+	
+	options, args = cli_arguments()
+
+	filelist = read_stdin() + args # Take in piped in stuff and filenames fed through cli
+	if options.sort: filelist = natural_sort(filelist, options.negative)
+
+	seqlist = fspacker(filelist, options.invert, options.short, options.negative) 
+	for seq in seqlist:
+		try:
+			print seq.export()
+		except AttributeError:
+			if options.passthrough:
+				print seq
+
+if __name__ == '__main__':
+	main()

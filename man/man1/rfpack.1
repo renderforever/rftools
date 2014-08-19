@@ -1,0 +1,108 @@
+.TH rfpack 1 "November 2013" "Unix filesequence tools" "Render Forever"
+
+.SH "NAME"
+\fBrfpack\fR - Finds sequences in a list of filenames
+
+.SH "SYNOPSIS"
+\fBrfpack\fR [-h] [-p] [-s] [-1] [-n] [-i] [\fIstring\fR \fI...\fR]
+
+.SH "DESCRIPTION"
+\fBrfpack\fR reads in list of strings (usually filenames) both as arguments and from stdin. It detects sequences and returns single entry for each filesequence.
+
+.SH "OPTIONS"
+.TP 20
+\fB-h, --help\fR
+Display simple help.
+
+.TP 20
+\fB-p, --passthrough\fR
+Pass through lines that are not part of any sequence unchanged.
+
+.TP 20
+\fB-s, --sort\fR
+Sort files based on their name and framenumbering before detecting filesequences
+
+.TP 20
+\fB-1, --single\fR
+Try to force single files containing number to be treated as 1 frame sequences
+
+.TP 20
+\fB-n, --negative\fR
+Allow negative frame numbers. 'test-20.dpx' can be frame -20 of sequence 'test###.dpx' or frame 20 of sequence 'test-##.dpx'
+
+.TP 20
+\fB-i, --invert\fR
+List missing files in a sequence rather than the files. Sequences without missing files will be omitted.
+
+.SH "EXAMPLES"
+
+following creates filesequence of three filenames
+.P
+.RS
+\fBrfpack\fR file.0001.dpx file.0002.dpx file.0003.dpx
+.RE
+.RS
+out:   file.[1-3@@@@].dpx
+.RE
+.P
+
+detect filesequence with stepping frame numbers and two number padding
+.P
+.RS
+\fBrfpack\fR file.00.dpx file.04.dpx file.08.dpx
+.RE
+.RS
+out:   file.[0-8x4@@].dpx
+.RE
+.P
+
+descending filesequence with negative framenumbers
+.P
+.RS
+\fBrfpack\fR -n file5.dpx file0.dpx file-5.dpx
+.RE
+.RS
+out:   file[5--5x-5@].dpx
+.RE
+.P
+
+multipart filesequence with missing frames
+.P
+.RS
+\fBrfpack\fR file.0001.dpx file.0002.dpx file.0003.dpx file.0005.dpx file.0007.dpx file.0009.dpx
+.RE
+.RS
+out:   file.[1-3@@@@,5-9x2@@@@].dpx
+.RE
+.P
+
+inverse of multipart filesequence with missing frames
+.P
+.RS
+\fBrfpack\fR -i file.0001.dpx file.0002.dpx file.0003.dpx file.0005.dpx file.0007.dpx file.0009.dpx
+.RE
+.RS
+out:   file.[4-4@@@@,6-6@@@@,8-8@@@@].dpx
+.RE
+.P
+
+use in combination with standard unix tools
+.P
+.RS
+ls | sort | \fBrfpack\fR
+.RE
+.RS
+find . -name "*.dpx" | \fBrfpack\fR
+.RE
+.P
+
+.SH "SEE ALSO"
+.RS
+.BR rfunpack(1),
+.BR rfedit(1), 
+.BR rfformat(1),
+.BR rfbuild(1)
+
+.SH "AUTHOR"
+.PP
+Olli Leppanen, Render Forever
