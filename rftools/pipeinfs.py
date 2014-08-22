@@ -1,12 +1,12 @@
-# pipeinfs.py
-#
-# Pipe in filesequence. Reads strings sent in through unixpipe and as commandline arguments. Checks which format strings are and
-# returns two lists modified and original. The actual conversion is done by Filesequence object at the time of object construction.
-#
-# supported input formats for filesequence strings are:
-# 'filesequence.[0-100x2@].dpx'
-# and so called mapped definition
-# 'old_filesequence.[0-100x2@].dpx -> new_filesequence.[100-150@].dpx'
+"""
+Pipe in filesequence. Reads strings sent in through unixpipe and as commandline arguments. Checks which format strings are and
+returns two lists modified and original. The actual conversion is done by Filesequence object at the time of object construction.
+
+supported input formats for filesequence strings are:
+'filesequence.[0-100x2@].dpx'
+and so called mapped definition
+'old_filesequence.[0-100x2@].dpx -> new_filesequence.[100-150@].dpx'
+"""
 
 import sys
 import os

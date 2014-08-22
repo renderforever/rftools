@@ -1,11 +1,11 @@
-# fstrimmer.py
-#
-# Filesequence trimmer
-#
-# edit operations that involve trimming, such as Truncate, Trim, Absolute_trim, Head and Tail
-# Takes in filesequence list and runs asked operation to each one of the seqs. If filesequence has been renamed earlier and we still carry
-# reference to the original naming, these tools can duplicate the trimming operation also on the original filenames. To achieve this we need to express
-# every trimming operation as absolute_trim_sequence instruction which can be run on both original and modified sequence to keep 1:1 mapping of files.
+"""
+Filesequence trimmer
+
+edit operations that involve trimming, such as Truncate, Trim, Absolute_trim, Head and Tail
+Takes in filesequence list and runs asked operation to each one of the seqs. If filesequence has been renamed earlier and we still carry
+reference to the original naming, these tools can duplicate the trimming operation also on the original filenames. To achieve this we need to express
+every trimming operation as absolute_trim_sequence instruction which can be run on both original and modified sequence to keep 1:1 mapping of files.
+"""
 
 from Filesequence import Filesequence
 from timecode_frame import get_frame

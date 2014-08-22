@@ -1,6 +1,8 @@
 #!/usr/bin/env python
-# rfedit
-# Do interaction with cli for fseditor.py
+"""
+rfedit manipulates and filters filesequence descriptions
+this file handles cli interaction and calls fseditor and fstrimmer if needed
+"""
 
 from rftools import fseditor
 from rftools import fstrimmer

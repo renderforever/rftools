@@ -146,9 +146,9 @@ cmp $cmp_flags "$test_filenames"_reorder "$temp"
 output
 
 echo "==== format ===="
-echo -n "---> output shake_style"
-cat "$test_filenames" | $rfpack -p -1 -n| $rfformat -o "shake" > "$temp"
-cmp $cmp_flags "$test_filenames"_format_shake "$temp"
+echo -n "---> output rv_style"
+cat "$test_filenames" | $rfpack -p -1 -n| $rfformat -o "rv" > "$temp"
+cmp $cmp_flags "$test_filenames"_format_rv "$temp"
 output
 
 echo -n "---> output printf"

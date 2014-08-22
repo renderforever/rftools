@@ -1,8 +1,6 @@
-# fsoutformat.py
-#
-# Takes in filesequence object and returns it out in style
-# These styles have been matched to take same number of parameters (2), so that we can pass them as variables in parent function (fsformat)
-# Most of them need only one so the parameter is called unused
+"""
+Collection of functions that give out differently formatted strings based on inputted filesequence object
+"""
 
 from Filesequence import Filesequence
 from timecode_frame import get_timecode
@@ -17,22 +15,6 @@ def printf_style(seq, **kwargs):
 
 	for clip in seq.clips:
 		ret.append(seq.head + "%0" + str(clip['padding']) + "d" + seq.tail + ' ' + str(clip['start']) + ' ' + str(clip['end']))
-
-	return ret
-
-def shake_style(seq, **kwargs):
-	""" Shake style output """
-	def at_padding(n):
-		""" create string of n 'ats' (@) """
-		return '@' * n
-
-	ret = []
-	for clip in seq.clips:
-		symbol = '#' if clip['padding'] == 4 else at_padding(clip['padding'])
-		if clip['increment'] == 1:
-			ret.append(seq.head + str(clip['start']) + '-' + str(clip['end']) + symbol + seq.tail)
-		else: # incerement other than one get x-2, x3 etc.. postfix
-			ret.append(seq.head + str(clip['start']) + '-' + str(clip['end']) + 'x' + str(clip['increment']) + symbol + seq.tail)
 
 	return ret
 

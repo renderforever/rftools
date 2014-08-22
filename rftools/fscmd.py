@@ -1,6 +1,4 @@
-# fscmd.py
-#
-# Launch custom command on each entry of input filesequences
+""" Iterates over individual files in a sequence and runs custom command on each """
 
 import os
 import subprocess

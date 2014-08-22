@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-# rfpack
-#
-# Commandline wrapper to fspacker.py, reads flags, stdin and formats output
-
+""" 
+rfpack detects filesequences from list of files.
+this file handles cli interaction
+"""
 import sys
 import string
 import re

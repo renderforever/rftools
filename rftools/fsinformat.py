@@ -1,6 +1,6 @@
-# fsinformat.py
-#
-# Take in string and output corresponding fs object
+"""
+Different functions that take in string and try to output filesequence object
+"""
 
 from Filesequence import Filesequence
 import re
@@ -59,6 +59,7 @@ def filmlight_style(s, unused=None):
 	first_split = s.rsplit("%.", 1)
 	if len(first_split) == 1: return None # does not look like FL early termination
 	second_split = first_split[1].split("F", 1)
+	if len(second_split) == 1: return None # does not look like FL still early termination
 
 	head = first_split[0]
 	tail, start, end = split_tail(second_split[1], ":")

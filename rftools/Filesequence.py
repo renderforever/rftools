@@ -1,12 +1,13 @@
-# Filesequence.py 
-# Filesequence class definition
-# Each sequence contains fixed head and tail strings and one or more 'clips' of sequence numbering 
-# (so if frame 50 is missing from 100 frames there would be clips 0-49, 51-99)
-# Each clip contains increment number (stepping) and information on padding
-# 1-9 increment 2 means 1 3 5 7 9. If number can't fit the provided padding it's ok to go over
+"""
+Filesequence class definition
+Each sequence contains fixed head and tail strings and one or more 'clips' of sequence numbering 
+(so if frame 50 is missing from 100 frames there would be clips 0-49, 51-99)
+Each clip contains increment number (stepping) and information on padding
+1-9 increment 2 means 1 3 5 7 9. If number can't fit the provided padding it's ok to go over
 
-# General idea for now is that the object are more or less data storages. They only process data when constructing the object
-# or providing different views on it. Besides this I also access the internals straight without accessor functions, not sure if this pythonic or not.
+General idea for now is that the object are more or less data storages. They only process data when constructing the object
+or providing different views on it. Besides this I also access the internals straight without accessor functions, not sure if this pythonic or not.
+"""
 
 class Filesequence:
 	""" Filesequence """

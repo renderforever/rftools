@@ -1,6 +1,6 @@
-# timecode_frame.py
-#
-# Most (if not all) frame inputs can also take timecode string. This is one centralized place to handle that conversion
+""" 
+Most frame inputs can also take timecode string. This is one centralized place to handle that conversion
+"""
 
 import os
 

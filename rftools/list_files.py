@@ -1,6 +1,7 @@
-# list_files.py
-# 
-# Tiniest helper script to do smart unpack, which takes into account that file being listed might be nonexistent, single file (string) or sequence representation (Filesequence)
+"""
+Tiniest helper script to do smart unpack, which takes into account that file being listed might be nonexistent, 
+single file (string) or sequence representation (Filesequence)
+"""
 
 from Filesequence import Filesequence
 

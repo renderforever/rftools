@@ -61,8 +61,10 @@ frames 0 to 10 with four digit padding
 The following are supported by --output
 
 .TP 16
-\fBshake\fR
-Apple shake legacy format. Clip length is embedded in string. Supports multipart sequences and stepping. Padding is marked either with '@' or '#'. '#' means 4 digit padding. '@' is variable length padding with each '@' symboling one digit.
+\fBrv\fr
+Output similar to tweak software 'rvls'.  Clip range is embedded in string. Supports multipart sequences and stepping. Padding is marked either with '@' or '#'. '#' means 4 digit padding. '@' is variable length padding with each '@' symboling one digit.
+.RE
+
 .PP
 .RS 16
 \fB'file.10-20#.dpx'\fR
@@ -166,10 +168,10 @@ out: file.%.1F.dpx:0-10
 .RE
 .P
 
-take in printf style sequence string and return something shake could read
+take in printf style sequence string and return something RV could read
 .P
 .RS
-\fBrfformat\fR --input printf "file.%04d.dpx 20 30" --output shake 
+\fBrfformat\fR --input printf "file.%04d.dpx 20 30" --output rv 
 .RE
 .RS 11
 out: file.20-30#.dpx

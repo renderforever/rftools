@@ -1,6 +1,6 @@
-# fspacker.py
-#
-# takes in list of files and returns sequences as Filesequence object where there is one 
+"""
+takes in list of files and returns sequences as Filesequence object where there is one 
+"""
 
 from Filesequence import Filesequence
 from types import *
@@ -25,7 +25,7 @@ def split_alphanum(s, allow_negative):
 def single_seq(s, negative=False):
 	""" takes in single string and tries to force it to one frame seq.
 		This means that sequence has at least some digits
-		Taking the ugly way out and using Filesequence object from_string constructor to figure out sequence formatting"""
+		Taking the ugly way out and using Filesequence object from_string constructor to figure out sequence formatting """
 
 	splitted = split_alphanum(s, negative)
 

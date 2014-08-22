@@ -1,9 +1,7 @@
-# fsbuilder.py
-#
-# Take in two filesequence (orig, modified) lists and do one of the following actions to them
-# cp, mv, ln
-
-# rv, create rv playlist
+"""
+Takes in two filesequencelists (orig, modified) and does one of the following actions to them
+cp, mv, ln
+"""
 
 import os
 import sys

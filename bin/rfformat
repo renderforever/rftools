@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-# fsformat.py
-#
-# pipe in strings and reformat them to desired format
+"""
+rfformat translates filesequence descriptions between different notations
+this file handles cli interaction and calls fsoutformat and fsinformat
+"""
 
 import sys
 from rftools.pipeinfs import get_fs
@@ -36,7 +37,7 @@ def cli_arguments():
 																%L length of sequence \
 																%- length of sequence in timecode (set also --fps) \
 																%l length of each clip \
-																%= length of each clip in timecode (set also --fps)", metavar="shake|printf|filmlight", default="straight")
+																%= length of each clip in timecode (set also --fps)", metavar="rv|printf|filmlight", default="straight")
 	return parser.parse_args()
 
 def get_in_handler(user_selection):
@@ -55,7 +56,6 @@ def get_out_handler(user_selection):
 	handler = None
 	optional = None
 	if user_selection == "straight": handler = fsoutformat.straight_style
-	if user_selection == "shake": handler = fsoutformat.shake_style
 	if user_selection == "printf": handler = fsoutformat.printf_style
 	if user_selection == "filmlight": handler = fsoutformat.fl_style
 	if user_selection == "rv": handler = fsoutformat.rv_style
@@ -69,7 +69,7 @@ def get_out_handler(user_selection):
 def read_raw_input(args):
 	""" read all strings user has provided either via pipe or as arguments
 		get_fs() has too much processing involved so this is more low level reader
-		similar to fspack """
+		similar to one in fspack """
 
 	if not sys.stdin.isatty():
 		return map(lambda s: s.rstrip(), sys.stdin.readlines()) + args
@@ -85,7 +85,9 @@ def interpret_input(options, args):
 		in_handler, optional = get_in_handler(options.informat)
 		pipe = read_raw_input(args)
 		for line in pipe:
-			seqs.append(in_handler(line, optional))
+			interpreted_input = in_handler(line, optional)
+			if interpreted_input:
+				seqs.append(interpreted_input)
 
 		return seqs
 

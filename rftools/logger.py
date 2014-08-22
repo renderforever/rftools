@@ -1,6 +1,6 @@
-# logger.py
-#
-# All optional cli output messages and possibly output to file for debugging
+"""
+all cli output is run through this 
+"""
 
 import sys
 

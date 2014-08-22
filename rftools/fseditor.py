@@ -1,24 +1,10 @@
-# fseditor.py - The editing engine called by fsedit
-#
-# Take in Filesequence objects, desired manipulation and return 'original -> modified' filesequence objects back
-#
-# Possible tools
-# offset - move sequence to different numbering +/- frames, or starting from number X or ending to number X
-# truncate - Throw away frames below or above start and end
-# trim - Adjust head and tail +/- frames
-# (atrim - Take +/- frames from head and tail (if sequence increment is >1 this is different than trim))
-# padding - force this padding to all input frames
-# (rename - force name X to head and/or tail)
-# reconstruct - merge multiple sequences to one or rename current 
-# remove gaps - if sequences head and tail are equal fix numbering so that it is continuous
-# (fill gaps - same as above, but expand sequence length and map previous found frame over gaps)
-# min - if length of seq is less than this skip sequence
-# max - if length of seq is more than this skip sequence
-# Reverse - change order of files in sequence
-# (or increment) - change stepping / direction
-# head/tail - give N first/last frames of sequence
-# reorder - reorder seqs (clips?) based on commaseparated integer string (... 1, 3, 2, 2, 1 ...). 
+"""
+The editing engine called by fsedit
 
+Take in Filesequence objects, desired manipulation and return 'original -> modified' filesequence objects back
+
+
+"""
 
 from timecode_frame import get_frame
 from Filesequence import Filesequence

@@ -1,6 +1,4 @@
-# sequence_math.py
-#
-# helper functions to do combining operations to sequences
+""" helper functions to combine, substract, reverse etc. sequences """
 
 from Filesequence import Filesequence
 from fractions import Fraction

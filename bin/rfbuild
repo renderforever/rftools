@@ -1,7 +1,8 @@
 #!/usr/bin/env python
-# fsbuild.py
-#
-# Cli wrapper to builder. do actions to files based on editor mapped output format
+""" 
+rfbuild executes the actions built with other RFTools (usually rfedit)
+This file figures out commandline interface and calls the corresponding function
+"""
 
 import os
 import sys
@@ -69,7 +70,7 @@ def main():
 		print_cli("nothing to do (maybe --ln, --mv, --cp , --rv or --cmd)\n", options.quiet)
 		sys.exit(0)
 
-	# RV is a thing of it's own
+	# RV is a thing of its own
 	if handler == fsrv.fsrv:
 
 		try:
@@ -98,7 +99,7 @@ def main():
 				sys.exit(1)
 			sys.exit(0)
 
-	# General file manipulation handlers
+	# General file manipulation handlers (cp,mv,ln)
 	try:
 		fsbuilder.builder(handler, original_seqlist, modified_seqlist, options.in_dir, out_dir, options.create_dirs, options.force, options.skip, options.quiet, options.execute)
 	

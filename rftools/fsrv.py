@@ -1,6 +1,6 @@
-# fsrv.py
-#
-# Launch RV based on original filelist
+""" 
+Launch RV based on sequencelist
+"""
 
 from fsoutformat import rv_style
 import subprocess
