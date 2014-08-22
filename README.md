@@ -41,7 +41,11 @@ $ man rfpack
 
 ## Documentation
 
-	<pdf link>
+[website](http://www.renderforever.fi/)
+
+[pdf](http://renderforever.fi/docs/rftools_v1.0.0.pdf)
+
+[vimeo](https://vimeo.com/101410363)
 
 ## Requirements
 Python 2.6 -> 2.7.8, python-setuptools for easier installation
