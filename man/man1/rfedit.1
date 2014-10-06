@@ -79,8 +79,12 @@ Offset sequence to start from provided frame.
 Offset sequence to end at provided frame.
 
 .TP
-\fB-b, --basename\fR \fIfilename\fR \fIext\fR
-Rename filename, but do not touch numbering. Takes two arguments first is filename before frame number and the second is extension after. Use "-" to use original filename.
+\fB-S, --replace\fR \fIsearch\fR \fIreplace\fR
+Search for string A and when found replace with string B. Leave filenumbering untouched.
+
+.TP
+\fB-i, --ireplace\fR \fIsearch\fR \fIreplace\fR
+Case insensitive search and replace 
 
 .TP
 \fB-v, --reverse\fR
@@ -211,7 +215,7 @@ six_files/six_files.[1-6@@@@].dpx
 Change extension to .jpg. 
 .P
 .RS
-find * | rfpack | \fBrfedit\fR --basename "-" ".jpg"
+find * | rfpack | \fBrfedit\fR --replace ".dpx" ".jpg"
 .RE
 .RS 11
 one_file/one_file.[1-1@@@@].dpx -> one_file/one_file.[1-1@@@@].jpg

@@ -75,26 +75,30 @@ def offset(seqlist, **kwargs):
 
 	return ret_seqs
 
-def basename(seqlist, **kwargs):
+def replace(seqlist, **kwargs):
+	""" search & replace """
+	
+	search = kwargs['search']
+	replace = kwargs['replace']
+	case_insensitive = kwargs['case_insensitive']
 
-	ret_seqs = []
+	if case_insensitive:
+		search_regex = re.compile(re.escape(search), re.IGNORECASE)
+	else:
+		search_regex = re.compile(search)
+
+	ret_seqlist = []
+
 	for seq in seqlist:
 		if not is_single(seq):
-			if kwargs['headname'] != "-":
-				headname = kwargs['headname']
-			else:
-				headname = seq.head
+			new_head = search_regex.sub(replace, seq.head)
+			new_tail = search_regex.sub(replace, seq.tail)
 
-			if kwargs['tailname'] != "-":
-				tailname = kwargs['tailname']
-			else:
-				tailname = seq.tail
-
-			ret_seqs.append(Filesequence(headname, seq.clips, tailname))
+			ret_seqlist.append(Filesequence(new_head, seq.clips,new_tail))
 		else:
-			ret_seqs.append(seq)
+			ret_seqlist.append(seq)
 
-	return ret_seqs
+	return ret_seqlist
 
 
 def padding(seqlist, **kwargs):

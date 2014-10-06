@@ -105,9 +105,9 @@ cat "$test_filenames" | $rfpack -p -1 -n| $rfedit --end "10:00:01:00" --fps 25 -
 cmp $cmp_flags "$test_filenames"_end "$temp"
 output
 
-echo -n "---> basename start. .extension"
-cat "$test_filenames" | $rfpack -p -1 -n | $rfedit --basename start. .extension --single | $rfunpack > "$temp"
-cmp $cmp_flags "$test_filenames"_basename "$temp"
+echo -n "---> replace .dpx .extension"
+cat "$test_filenames" | $rfpack -p -1 -n | $rfedit --replace .dpx .extension --single | $rfunpack > "$temp"
+cmp $cmp_flags "$test_filenames"_replace "$temp"
 output
 
 echo -n "---> reverse"

@@ -35,7 +35,8 @@ def cli_arguments():
 	parser.add_option("--offset", "-o", dest="offset", help="offset by N frames", metavar="frames")
 	parser.add_option("--start", "-s", dest="start_at", help="offset sequence to start at N", metavar="frame")
 	parser.add_option("--end", "-e", dest="end_at", help="offset sequence to end at N", metavar="frame")
-	parser.add_option("--basename", "-b", dest="basename", help="rename sequence, before and after numbering", metavar="filename extension", nargs=2)
+	parser.add_option("--replace", "-S", dest="replace", help="search and replace string with another", metavar="search replace", nargs=2)
+	parser.add_option("--ireplace", "-i", dest="ireplace", help="search and replace string with another case insensitive", metavar="search replace", nargs=2)
 	parser.add_option("--reverse", "-v", dest="reverse", help="reverse the order and direction of clips in sequence", action="store_true")
 	parser.add_option("--reconstruct", "-r", dest="reconstruct", help="merge multiple sequences or rename sequence", metavar="seq string")
 	parser.add_option("--removegaps", "-x", dest="remove_gaps", help="remove missing frames and make sequence continous", action="store_true")
@@ -87,7 +88,8 @@ def manual_parse_args(arglist):
 						 (["--offset", "-o"], 		1),
 						 (["--start", "-s"],		1),
 						 (["--end", "-e"],			1),
-						 (["--basename", "-b"],		2),
+						 (["--replace", "-S"],		2),
+						 (["--ireplace", "-i"],		2),
 						 (["--reverse", "-v"],		0),
 						 (["--reconstruct", "-r"],	1),
 						 (["--removegaps",	"-x"],	0)
@@ -139,7 +141,8 @@ def handle_seqs(original_seqlist, modified_seqlist, options, action):
 	if action['name'] == "--offset": modified_seqlist = fseditor.offset(modified_seqlist, amount=action['args'][0], fps=options.fps, tc_start=options.tc_start)
 	if action['name'] == "--start": modified_seqlist = fseditor.offset(modified_seqlist, start_at=action['args'][0], fps=options.fps, tc_start=options.tc_start)
 	if action['name'] == "--end": modified_seqlist = fseditor.offset(modified_seqlist, end_at=action['args'][0], fps=options.fps, tc_start=options.tc_start)
-	if action['name'] == "--basename": modified_seqlist = fseditor.basename(modified_seqlist, headname=action['args'][0], tailname=action['args'][1])
+	if action['name'] == "--replace": modified_seqlist = fseditor.replace(modified_seqlist, search=action['args'][0], replace=action['args'][1], case_insensitive=False)
+	if action['name'] == "--ireplace": modified_seqlist = fseditor.replace(modified_seqlist, search=action['args'][0], replace=action['args'][1], case_insensitive=True)	
 	if action['name'] == "--reverse": modified_seqlist = fseditor.reverse(modified_seqlist)
 	if action['name'] == "--reconstruct": modified_seqlist = fseditor.reconstruct(modified_seqlist, to=Filesequence.from_string(action['args'][0]))
 	if action['name'] == "--removegaps": modified_seqlist = fseditor.remove_gaps(modified_seqlist)
