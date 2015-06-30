@@ -23,7 +23,7 @@ If you want to try out without install. Set `PYTHONPATH` to point to rftools dir
 ### pre-built binaries
 Stand-alone binaries are made with [pyinstaller](http://www.pyinstaller.org/).
 
-	- [Ubuntu 14.04](http://www.renderforever.fi/dist/rftools_1.0.0_ubuntu1404_20150630.zip)
+[Ubuntu 14.04](http://www.renderforever.fi/dist/rftools_1.0.0_ubuntu1404_20150630.zip)
 
 ### man pages
 MAN pages are available at directory `<rftools>/man`. To use them they need to be copied manually to path relative to location of executables or other MAN search path
